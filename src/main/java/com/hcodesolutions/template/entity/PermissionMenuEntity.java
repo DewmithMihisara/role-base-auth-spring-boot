@@ -1,4 +1,4 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,26 +10,25 @@ import lombok.*;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
 @Entity
-@Table(name = "feature_menu")
-public class FeatureMenuEntity {
+@Builder
+@Table(name = "permission_menu")
+public class PermissionMenuEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feature_menu_id")
+    @Column(name = "permission_menu_id")
     private Long id;
 
     @Column(name = "is_active")
     private boolean isActive;
-
 
     @ManyToOne
     @JoinColumn(name = "menu_id", updatable = false)
     private MenuEntity menu;
 
     @ManyToOne
-    @JoinColumn(name = "feature_id", updatable = false)
-    private FeatureEntity feature;
+    @JoinColumn(name = "permission_id", updatable = false)
+    private PermissionEntity permission;
 }

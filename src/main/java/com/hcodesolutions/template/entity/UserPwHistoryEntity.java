@@ -1,13 +1,12 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Date;
 
 /**
  * @author Dewmith Mihisara
@@ -16,28 +15,28 @@ import java.util.List;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "subscription_plan")
-public class SubscriptionPlanEntity {
+@Table(name = "user_password_history")
+public class UserPwHistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "subscription_plan_id")
+    @Column(name = "history_id")
     private Long id;
 
-    @Column(name = "description", columnDefinition = "LONGTEXT")
-    private String description;
+    @Column(name = "pw_changed_date")
+    private Date pwChangedDate;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "company_id")
+    private Long companyId;
 
-    @Column(name = "price")
-    private double price;
+    @Column(name = "branch_id")
+    private Long branchId;
 
-    @Column(name = "currency")
-    private String currency;
+    @Column(name = "old_password")
+    private String oldPassword;
 
 
     @CreationTimestamp
@@ -59,8 +58,8 @@ public class SubscriptionPlanEntity {
     @Column(name = "is_active", columnDefinition = "TINYINT(1)")
     private boolean isActive;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "subscriptionPlan", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SubPlanFunctionEntity.class)
-    List<SubPlanFunctionEntity> subPlanFunctionEntities;
 }

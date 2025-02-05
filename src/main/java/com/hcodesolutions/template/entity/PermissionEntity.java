@@ -1,4 +1,4 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -14,21 +14,22 @@ import java.util.List;
  * @date 2025-02-02
  * @since 0.0.1
  */
+@Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Entity
-@Table(name = "`function`")
-public class FunctionEntity {
+@Table(name = "permission")
+public class PermissionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "function_id")
+    @Column(name = "permission_id")
     private Long id;
 
-    @Column(name = "function_name")
-    private String functionName;
+    @Column(name = "name")
+    private String name;
+
 
     @CreationTimestamp
     @Column(name = "create_date", updatable = false, nullable = false)
@@ -49,7 +50,17 @@ public class FunctionEntity {
     @Column(name = "is_active", columnDefinition = "TINYINT(1)")
     private boolean isActive;
 
+
+
     @JsonIgnore
-    @OneToMany(mappedBy = "function", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SubPlanFunctionEntity.class)
-    List<SubPlanFunctionEntity> subPlanFunctionEntities;
+    @OneToMany(mappedBy = "permission", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = UserMenuEntity.class)
+    List<UserMenuEntity> userMenuEntities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "permission", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = RoleMenuPermissionEntity.class)
+    List<RoleMenuPermissionEntity> roleMenuPermissionEntities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "permission", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = PermissionMenuEntity.class)
+    List<PermissionMenuEntity> permissionMenuEntities;
 }

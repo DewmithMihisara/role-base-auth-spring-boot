@@ -1,12 +1,13 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 
 /**
  * @author Dewmith Mihisara
@@ -15,28 +16,19 @@ import java.util.Date;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "user_password_history")
-public class UserPwHistoryEntity {
+@Table(name = "role")
+public class RoleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "history_id")
+    @Column(name = "role_id")
     private Long id;
 
-    @Column(name = "pw_changed_date")
-    private Date pwChangedDate;
-
-    @Column(name = "company_id")
-    private Long companyId;
-
-    @Column(name = "branch_id")
-    private Long branchId;
-
-    @Column(name = "old_password")
-    private String oldPassword;
+    @Column(name = "role_name")
+    private String roleName;
 
 
     @CreationTimestamp
@@ -58,8 +50,11 @@ public class UserPwHistoryEntity {
     @Column(name = "is_active", columnDefinition = "TINYINT(1)")
     private boolean isActive;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    @JsonIgnore
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = MenuRoleEntity.class)
+    List<MenuRoleEntity> menuRoleEntities;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = UserRoleEntity.class)
+    List<UserRoleEntity> userRoleEntities;
 }

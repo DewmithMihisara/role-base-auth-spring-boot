@@ -1,4 +1,4 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -82,9 +82,13 @@ public class UserEntity {
     private boolean isActive;
 
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private RoleEntity role;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = UserRoleEntity.class)
+    List<UserRoleEntity> userRoleEntities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = UserMenuEntity.class)
+    List<UserMenuEntity> userMenuEntities;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = UserPwHistoryEntity.class)

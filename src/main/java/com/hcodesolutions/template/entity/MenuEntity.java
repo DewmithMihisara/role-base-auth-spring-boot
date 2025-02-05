@@ -1,4 +1,4 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -72,4 +72,12 @@ public class MenuEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = MenuRoleEntity.class)
     List<MenuRoleEntity> menuRoleEntities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = UserMenuEntity.class)
+    List<UserMenuEntity> userMenuEntities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = PermissionMenuEntity.class)
+    List<PermissionMenuEntity> permissionMenuEntities;
 }

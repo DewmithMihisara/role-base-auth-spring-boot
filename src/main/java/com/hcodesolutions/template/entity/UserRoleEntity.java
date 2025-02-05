@@ -1,11 +1,11 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 /**
  * @author Dewmith Mihisara
- * @date 2025-02-02
+ * @date 2025-02-03
  * @since 0.0.1
  */
 @Getter
@@ -14,16 +14,16 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "menu_role")
-public class MenuRoleEntity {
+@Table(name = "user_role")
+public class UserRoleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "menu_role_id")
+    @Column(name = "user_role_id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "menu_id", updatable = false)
-    private MenuEntity menu;
+    @JoinColumn(name = "user_id", updatable = false)
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "role_id", updatable = false)

@@ -1,13 +1,11 @@
-package com.hcodesolutions.entity;
+package com.hcodesolutions.template.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author Dewmith Mihisara
@@ -18,17 +16,29 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
-@Table(name = "role")
-public class RoleEntity {
+@Builder
+@Table(name = "otp")
+public class OtpEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "role_id")
+    @Column(name = "otp_id")
     private Long id;
 
-    @Column(name = "role_name")
-    private String roleName;
+    @Column(name = "type")
+    private String type;
+
+    @Column(name = "otp_no")
+    private String otp;
+
+    @Column(name = "validity")
+    private int validity;
+
+    @Column(name = "company_id")
+    private Long companyId;
+
+    @Column(name = "branch_id")
+    private Long branchId;
 
 
     @CreationTimestamp
@@ -50,11 +60,8 @@ public class RoleEntity {
     @Column(name = "is_active", columnDefinition = "TINYINT(1)")
     private boolean isActive;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = UserEntity.class)
-    List<UserEntity> users;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = MenuRoleEntity.class)
-    List<MenuRoleEntity> menuRoleEntities;
 }
