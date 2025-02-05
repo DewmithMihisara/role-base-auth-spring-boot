@@ -55,9 +55,6 @@ public class UserEntity {
     @Column(name = "is_locked")
     private boolean isLocked;
 
-    @Column(name = "company_id")
-    private Long companyId;
-
     @Column(name = "token")
     private String token;
 

@@ -1,5 +1,6 @@
 package com.hcodesolutions.template.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.io.Serializable;
@@ -17,11 +18,13 @@ import java.util.List;
 @NoArgsConstructor
 public class UserDto implements Serializable {
     private Long id;
+    @NotEmpty(message = "first name is required")
     private String firstName;
     private String lastName;
     private String userName;
-    private String password;
+    @NotEmpty(message = "email is required")
     private String email;
+    @NotEmpty(message = "no is required")
     private String contactNumber;
     private Integer tryCount;
     private Boolean isLocked;
@@ -29,5 +32,6 @@ public class UserDto implements Serializable {
     private String createBy;
     private String modifyBy;
     private Boolean isActive;
+    @NotEmpty(message = "role is required")
     private List<Long> roleIds;
 }

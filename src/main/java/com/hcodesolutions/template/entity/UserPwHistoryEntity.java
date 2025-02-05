@@ -29,9 +29,6 @@ public class UserPwHistoryEntity {
     @Column(name = "pw_changed_date")
     private Date pwChangedDate;
 
-    @Column(name = "company_id")
-    private Long companyId;
-
     @Column(name = "branch_id")
     private Long branchId;
 

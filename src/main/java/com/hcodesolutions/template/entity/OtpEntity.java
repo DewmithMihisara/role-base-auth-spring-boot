@@ -34,9 +34,6 @@ public class OtpEntity {
     @Column(name = "validity")
     private int validity;
 
-    @Column(name = "company_id")
-    private Long companyId;
-
     @Column(name = "branch_id")
     private Long branchId;
 
