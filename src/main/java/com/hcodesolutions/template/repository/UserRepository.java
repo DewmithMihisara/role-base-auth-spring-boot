@@ -42,4 +42,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     List<UserEntity> findAllByIsActive(boolean b);
 
     Optional<UserEntity> findByToken(String token);
+
+    Optional<UserEntity> findByEmailAndIsActive(String email, boolean b);
 }
