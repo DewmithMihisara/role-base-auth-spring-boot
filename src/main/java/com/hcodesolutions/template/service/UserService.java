@@ -31,7 +31,7 @@ import java.util.*;
 @Service
 @Transactional
 public class UserService {
-    private static Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -344,6 +344,8 @@ public class UserService {
                         .modifyBy(userEntity.getModifyBy())
                         .isActive(userEntity.isActive())
                         .build();
+
+                list.add(userDto);
             });
 
             HashMap<String, Object> map = new HashMap<>();
