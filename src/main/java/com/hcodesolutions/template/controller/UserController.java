@@ -2,6 +2,7 @@ package com.hcodesolutions.template.controller;
 
 import com.hcodesolutions.template.dto.*;
 import com.hcodesolutions.template.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = "*")
+@Tag(name = "user controller", description = "user related operations...")
 public class UserController {
     private static Logger logger = LoggerFactory.getLogger(UserController.class);
 

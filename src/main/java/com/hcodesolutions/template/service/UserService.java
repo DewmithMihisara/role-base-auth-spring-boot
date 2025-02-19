@@ -68,12 +68,13 @@ public class UserService {
             UserEntity user = UserEntity.builder()
                     .firstName(userDto.getFirstName())
                     .lastName(userDto.getLastName())
-                    .userName(userDto.getUserName())
+                    .userName(userDto.getEmail())
                     .email(userDto.getEmail())
+                    .password(passwordEncoder.encode(userDto.getPassword()))
                     .contactNumber(userDto.getContactNumber())
                     .tryCount(0)
                     .isLocked(false)
-                    .createBy(userDto.getCreateBy())
+                    .createBy(CommonUtils.getUser().getUsername())
                     .isActive(true)
 //                .token(substring)
                     .build();
@@ -86,6 +87,7 @@ public class UserService {
                     userRoleEntities.add(UserRoleEntity.builder()
                             .user(user)
                             .role(roleEntity)
+                            .isActive(true)
                             .build());
                 } else {
                     logger.error("Role not found for id: " + roleId);
@@ -94,7 +96,7 @@ public class UserService {
             });
 
             if (userRepository.save(user) != null && userRoleRepository.saveAll(userRoleEntities) != null) {
-                // need to send emails in future
+                // need to send emails if password set via email
 
                 logger.info("User saved successfully");
                 return ResponseDto.builder()
@@ -131,8 +133,8 @@ public class UserService {
 
             UserEntity user = userOptional.get();
 
-            Optional<String> duplicateField = userRepository.findDuplicateField(
-                    userDto.getUserName(), userDto.getEmail(), userDto.getContactNumber());
+            Optional<String> duplicateField = userRepository.findDuplicateFieldWithoutId(
+                    userDto.getUserName(), userDto.getEmail(), userDto.getContactNumber(), userDto.getId());
 
             if (duplicateField.isPresent()) {
                 logger.error("Duplicate field found for " + duplicateField.get());
@@ -147,7 +149,7 @@ public class UserService {
             user.setUserName(userDto.getUserName());
             user.setEmail(userDto.getEmail());
             user.setContactNumber(userDto.getContactNumber());
-            user.setModifyBy(userDto.getModifyBy());
+            user.setModifyBy(CommonUtils.getUser().getUsername());
 
             List<UserRoleEntity> userRoleEntities = userRoleRepository.findByUser(user);
 

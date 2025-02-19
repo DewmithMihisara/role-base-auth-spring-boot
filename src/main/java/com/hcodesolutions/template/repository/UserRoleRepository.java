@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Dewmith Mihisara
@@ -15,4 +16,6 @@ import java.util.List;
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRoleEntity, Long> {
     List<UserRoleEntity> findByUser(UserEntity user);
+
+    List<UserRoleEntity> findByUserIdAndIsActive(Long id, boolean b);
 }

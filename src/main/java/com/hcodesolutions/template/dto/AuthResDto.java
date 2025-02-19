@@ -3,6 +3,7 @@ package com.hcodesolutions.template.dto;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,5 +21,5 @@ public class AuthResDto implements Serializable {
     private String name;
     private String email;
     private String token;
-    private String role;
+    private List<String> role;
 }

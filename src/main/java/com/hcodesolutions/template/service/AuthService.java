@@ -4,17 +4,23 @@ import com.hcodesolutions.template.dto.AuthReqDto;
 import com.hcodesolutions.template.dto.AuthResDto;
 import com.hcodesolutions.template.entity.UserEntity;
 import com.hcodesolutions.template.repository.UserRepository;
+import com.hcodesolutions.template.repository.UserRoleRepository;
 import com.hcodesolutions.template.security.Encoder;
 import com.hcodesolutions.template.util.JWTUtil;
 import com.hcodesolutions.template.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Dewmith Mihisara
@@ -23,6 +29,7 @@ import java.util.Optional;
  */
 @Service
 public class AuthService {
+    private final UserRoleRepository userRoleRepository;
     @Value("${login.success.message}")
     private String successMessage;
 
@@ -39,23 +46,34 @@ public class AuthService {
     private final Encoder encoder;
     private final JWTUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository, Encoder encoder, JWTUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, Encoder encoder, JWTUtil jwtUtil, UserRoleRepository userRoleRepository) {
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.jwtUtil = jwtUtil;
+        this.userRoleRepository = userRoleRepository;
     }
 
     public ResponseUtil<AuthResDto> authenticationLogin(AuthReqDto authReqDTO) throws Exception {
         try {
             Optional<UserEntity> userEntity = userRepository.findByEmailAndIsActive(authReqDTO.getEmail(), true);
+
             if (userEntity.isPresent()) {
+                System.out.println(userEntity.get().getFirstName());
+
                 if (!userEntity.get().isLocked()) {
                     boolean isCorrect = encoder.matches(authReqDTO.getPassword().trim(), userEntity.get().getPassword());
 
+                    System.out.println(isCorrect);
                     if (isCorrect) {
-                        HashMap<String, Object> hashMap = new HashMap<>();
-//                        hashMap.put("Role", userEntity.get().getRole().getRoleName());
 
+                        HashMap<String, Object> hashMap = new HashMap<>();
+
+                        List<String> roles = new ArrayList<>();
+                        userRoleRepository.findByUserIdAndIsActive(userEntity.get().getId(), true).forEach(userRoleEntity -> {
+                            roles.add(userRoleEntity.getRole().getRoleName());
+                        });
+
+                        hashMap.put("Role", roles);
                         //token generate
                         String token = jwtUtil.generateJwtToken(userEntity.get().getUserName(), hashMap);
 
@@ -63,7 +81,7 @@ public class AuthService {
                         AuthResDto authResDTO = new AuthResDto();
                         authResDTO.setId(userEntity.get().getId());
                         authResDTO.setName(userEntity.get().getFirstName());
-//                        authResDTO.setRole(userEntity.get().getRole().getRoleName());
+                        authResDTO.setRole(roles);
                         authResDTO.setToken(token);
                         authResDTO.setEmail(userEntity.get().getEmail());
 
@@ -78,11 +96,9 @@ public class AuthService {
             } else {
                 throw new IllegalArgumentException("#USER_ERROR#" + notFoundMessage);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e.getMessage().contains("#USER_ERROR#")) {
-                e = new RuntimeException(e.getMessage().substring(12));
-                throw e;
+        } catch (Exception exception) {
+            if (exception.getMessage().contains("#USER_ERROR#")) {
+                throw new RuntimeException(exception.getMessage().substring(12));
             } else {
                 throw new IllegalArgumentException(notFoundMessage);
             }
@@ -90,18 +106,22 @@ public class AuthService {
     }
 
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = null;
-        try {
-            user = userRepository.findByEmail(email);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        if (user != null) {
-            UserDetails userDetails = new org.springframework.security.core.userdetails.User(email,
-                    user.getPassword(), new ArrayList<>());
-            return userDetails;
-        } else {
+        UserEntity user = userRepository.findByEmail(email);
+        if (user == null) {
             throw new UsernameNotFoundException(email);
         }
+
+        List<String> roles = new ArrayList<>();
+
+        userRoleRepository.findByUserIdAndIsActive(user.getId(), true).forEach(userRoleEntity -> {
+            roles.add(userRoleEntity.getRole().getRoleName());
+        });
+
+        // Convert roles from the database to GrantedAuthority objects
+        List<GrantedAuthority> authorities = roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role)) // Assuming role.getName() returns "USER", "ADMIN"
+                .collect(Collectors.toList());
+
+        return new User(email, user.getPassword(), authorities);
     }
 }

@@ -5,7 +5,7 @@ import lombok.*;
 /**
  * @author Dewmith Mihisara
  * @date 2025-02-07
- * @since
+ * @since 0.0.1
  */
 @AllArgsConstructor
 @NoArgsConstructor

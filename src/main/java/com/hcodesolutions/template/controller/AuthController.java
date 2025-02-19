@@ -3,6 +3,7 @@ package com.hcodesolutions.template.controller;
 import com.hcodesolutions.template.dto.AuthReqDto;
 import com.hcodesolutions.template.service.AuthService;
 import com.hcodesolutions.template.util.ResponseUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/auth")
+@Tag(name = "auth controller", description = "authentication related operations...")
 public class AuthController {
     private static Logger logger = LoggerFactory.getLogger(AuthController.class);
 

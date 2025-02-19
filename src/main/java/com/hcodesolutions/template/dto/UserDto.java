@@ -28,10 +28,12 @@ public class UserDto implements Serializable {
     private String contactNumber;
     private Integer tryCount;
     private Boolean isLocked;
-    private Long companyId;
     private String createBy;
     private String modifyBy;
     private Boolean isActive;
     @NotEmpty(message = "role is required")
     private List<Long> roleIds;
+
+    // if password set via emails, remove this
+    private String password;
 }

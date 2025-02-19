@@ -19,19 +19,36 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByToken(String substring);
 
     @Query(value = """
+        SELECT 
+            CASE 
+                WHEN u.user_name = :userName THEN 'USERNAME' 
+                WHEN u.email = :email THEN 'EMAIL' 
+                WHEN u.contact_number = :contactNumber THEN 'CONTACT_NUMBER' 
+            END AS duplicateField 
+        FROM user u 
+        WHERE u.user_name = :userName OR u.email = :email OR u.contact_number = :contactNumber
+        LIMIT 1
+    """, nativeQuery = true)
+    Optional<String> findDuplicateField(@Param("userName") String userName,
+                                        @Param("email") String email,
+                                        @Param("contactNumber") String contactNumber);
+
+    @Query(value = """
     SELECT 
         CASE 
             WHEN u.user_name = :userName THEN 'USERNAME' 
             WHEN u.email = :email THEN 'EMAIL' 
             WHEN u.contact_number = :contactNumber THEN 'CONTACT_NUMBER' 
         END AS duplicateField 
-    FROM user_entity u 
-    WHERE u.user_name = :userName OR u.email = :email OR u.contact_number = :contactNumber
+    FROM user u 
+    WHERE (u.user_name = :userName OR u.email = :email OR u.contact_number = :contactNumber) 
+    AND u.user_id != :id
     LIMIT 1
-""", nativeQuery = true)
-    Optional<String> findDuplicateField(@Param("userName") String userName,
-                                        @Param("email") String email,
-                                        @Param("contactNumber") String contactNumber);
+    """, nativeQuery = true)
+    Optional<String> findDuplicateFieldWithoutId(@Param("userName") String userName,
+                                                 @Param("email") String email,
+                                                 @Param("contactNumber") String contactNumber,
+                                                 @Param("id") long id);
 
     UserEntity findByUserName(String selectedValue);
 
