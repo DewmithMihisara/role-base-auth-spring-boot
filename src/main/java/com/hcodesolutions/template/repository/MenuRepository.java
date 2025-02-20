@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -51,6 +52,24 @@ public interface MenuRepository extends JpaRepository<MenuEntity, Long> {
             @NotEmpty(message = "rout is required")@Param("route") String route,
             @Param("id") Long id
     );
+
+    @Query(value = """
+        WITH RecursiveMenu AS (
+            SELECT 
+                m.menu_id AS id, 
+                m.name, 
+                m.icon, 
+                m.route, 
+                m.display_order, 
+                m.parent_menu 
+            FROM menu m 
+            INNER JOIN user_menu um ON m.menu_id = um.menu_id 
+            WHERE um.user_id = :userId 
+            AND m.is_active = 1
+        )
+        SELECT * FROM RecursiveMenu ORDER BY display_order ASC
+        """, nativeQuery = true)
+    List<Object[]> getUserMenus(@Param("userId") Long userId);
 
     Optional<MenuEntity> findByName(String selectedValue);
 

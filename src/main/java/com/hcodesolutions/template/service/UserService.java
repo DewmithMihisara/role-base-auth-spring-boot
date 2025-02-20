@@ -525,5 +525,55 @@ public class UserService {
     }
 
 
+    public ResponseDto getUserMenus() {
+        try {
+            UserEntity usr = userRepository.findByUserNameAndIsActive(CommonUtils.getUser().getUsername(), true);
 
+            if (usr == null) {
+                logger.error("User not found");
+                return new ResponseDto("User not found", 404);
+            }
+
+            List<Object[]> menuData = menuRepository.getUserMenus(usr.getId());
+
+            Map<Long, MenuLoadingDto> menuMap = new HashMap<>();
+            List<MenuLoadingDto> rootMenus = new ArrayList<>();
+
+            for (Object[] row : menuData) {
+                Long id = ((Number) row[0]).longValue();
+                String name = (String) row[1];
+                String icon = (String) row[2];
+                String route = (String) row[3];
+                int order = ((Number) row[4]).intValue();
+                Long parentId = row[5] != null ? ((Number) row[5]).longValue() : null;
+
+                MenuLoadingDto menuDto = new MenuLoadingDto();
+                menuDto.setName(name);
+                menuDto.setIcon(icon);
+                menuDto.setRoute(route);
+                menuDto.setOrder(order);
+                menuDto.setChildren(new ArrayList<>());
+
+                menuMap.put(id, menuDto);
+
+                if (parentId == null) {
+                    rootMenus.add(menuDto);
+                } else {
+                    menuMap.get(parentId).getChildren().add(menuDto);
+                }
+            }
+
+            // Sort parent menus & their children
+            rootMenus.sort(Comparator.comparingInt(MenuLoadingDto::getOrder));
+            for (MenuLoadingDto menu : menuMap.values()) {
+                menu.getChildren().sort(Comparator.comparingInt(MenuLoadingDto::getOrder));
+            }
+
+            logger.info("User menus found successfully");
+            return new ResponseDto("User menus found successfully", 200, new HashMap<>(Map.of("menus", rootMenus)));
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return new ResponseDto(e.getMessage(), 500);
+        }
+    }
 }

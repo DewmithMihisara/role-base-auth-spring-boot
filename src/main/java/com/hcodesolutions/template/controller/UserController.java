@@ -112,4 +112,14 @@ public class UserController {
             return new ResponseDto(e.getMessage(), 500);
         }
     }
+
+    @GetMapping("/load_menu")
+    public ResponseDto loadMenu() {
+        try {
+            return userService.getUserMenus();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return new ResponseDto(e.getMessage(), 500);
+        }
+    }
 }

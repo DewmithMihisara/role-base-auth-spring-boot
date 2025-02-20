@@ -92,6 +92,10 @@ public class RoleService {
         try {
             RoleEntity roleEntity = roleRepository.findById(roleDto.getId()).orElseThrow(() -> new RuntimeException("Role not found"));
 
+            if (roleRepository.findByRoleNameAndIdNot(roleDto.getName(), roleDto.getId()).isPresent()) {
+                throw new RuntimeException("Role already exists");
+            }
+
             roleEntity.setRoleName(roleDto.getName().toUpperCase());
             roleEntity.setModifyBy(CommonUtils.getUser().getUsername());
 
