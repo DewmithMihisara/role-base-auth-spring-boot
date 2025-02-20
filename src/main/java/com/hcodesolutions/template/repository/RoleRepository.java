@@ -17,20 +17,6 @@ import java.util.Optional;
 @Repository
 public interface RoleRepository extends JpaRepository<RoleEntity, Long> {
 
-    @Query(value = """
-        SELECT 
-            CASE 
-                WHEN m.name = :name THEN 'NAME' 
-                WHEN m.display_order = :displayOrder THEN 'DISPLAY_ORDER' 
-                WHEN m.route = :route THEN 'ROUT'
-            END AS duplicateField 
-        FROM menu m 
-        WHERE m.name = :name OR m.display_order = :displayOrder OR m.route = :route
-        LIMIT 1
-    """, nativeQuery = true)
-    Optional<String> findDuplicateField(
-            @NotEmpty(message = "name is required")@Param("name") String name,
-            @NotEmpty(message = "display order is required")@Param("displayOrder") Integer displayOrder,
-            @NotEmpty(message = "rout is required")@Param("route") String route
-    );
+    Optional<RoleEntity> findByRoleName(String name);
+
 }

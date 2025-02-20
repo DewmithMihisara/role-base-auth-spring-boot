@@ -43,7 +43,7 @@ public class MenuService {
 
     public ResponseDto saveMenu(MenuDto menuDto) {
         try{
-            Optional<String> duplicateField = roleRepository.findDuplicateField(menuDto.getName(), menuDto.getDisplayOrder(), menuDto.getRoute());
+            Optional<String> duplicateField = menuRepository.findDuplicateField(menuDto.getName(), menuDto.getDisplayOrder(), menuDto.getRoute());
 
             if (duplicateField.isPresent()) {
                 logger.error("Duplicate field found for " + duplicateField.get());
@@ -95,7 +95,7 @@ public class MenuService {
             if (menuEntityOptional.isPresent()) {
                 MenuEntity menuEntity = menuEntityOptional.get();
 
-                Optional<String> duplicateField = roleRepository.findDuplicateField(menuDto.getName(), menuDto.getDisplayOrder(), menuDto.getRoute());
+                Optional<String> duplicateField = menuRepository.findDuplicateFieldWithoutId(menuDto.getName(), menuDto.getDisplayOrder(), menuDto.getRoute(), menuDto.getId());
 
                 if (duplicateField.isPresent()) {
                     logger.error("Duplicate field found for " + duplicateField.get());
@@ -224,7 +224,7 @@ public class MenuService {
                             .build());
                 }
                 logger.info("Menu pagination success");
-                return ResponseDto.builder().message("Menu pagination success").status(200).data(new HashMap<>(Map.of("menu", menuDtos))).build();
+                return ResponseDto.builder().message("Menu pagination success").status(200).data(new HashMap<>(Map.of("menu", menuDtos, "rowCount", menuEntities.getTotalElements()))).build();
             } else {
                 logger.error("Menu not found");
                 return ResponseDto.builder().message("Menu not found").status(404).build();

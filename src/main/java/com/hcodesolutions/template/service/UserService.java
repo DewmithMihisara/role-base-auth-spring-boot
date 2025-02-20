@@ -1,14 +1,8 @@
 package com.hcodesolutions.template.service;
 
 import com.hcodesolutions.template.dto.*;
-import com.hcodesolutions.template.entity.RoleEntity;
-import com.hcodesolutions.template.entity.UserEntity;
-import com.hcodesolutions.template.entity.UserPwHistoryEntity;
-import com.hcodesolutions.template.entity.UserRoleEntity;
-import com.hcodesolutions.template.repository.RoleRepository;
-import com.hcodesolutions.template.repository.UserPwHistoryRepository;
-import com.hcodesolutions.template.repository.UserRepository;
-import com.hcodesolutions.template.repository.UserRoleRepository;
+import com.hcodesolutions.template.entity.*;
+import com.hcodesolutions.template.repository.*;
 import com.hcodesolutions.template.dto.ConformPasswordDto;
 import com.hcodesolutions.template.util.CommonUtils;
 import jakarta.transaction.Transactional;
@@ -38,13 +32,21 @@ public class UserService {
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserPwHistoryRepository userPwHistoryRepository;
+    private final UserPasswordRepository userPasswordRepository;
+    private final MenuRepository menuRepository;
+    private final PermissionRepository permissionRepository;
+    private final UserMenuRepository userMenuRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserRoleRepository userRoleRepository, PasswordEncoder passwordEncoder, UserPwHistoryRepository userPwHistoryRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserRoleRepository userRoleRepository, PasswordEncoder passwordEncoder, UserPwHistoryRepository userPwHistoryRepository, UserPasswordRepository userPasswordRepository, MenuRepository menuRepository, PermissionRepository permissionRepository, UserMenuRepository userMenuRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userPwHistoryRepository = userPwHistoryRepository;
+        this.userPasswordRepository = userPasswordRepository;
+        this.menuRepository = menuRepository;
+        this.permissionRepository = permissionRepository;
+        this.userMenuRepository = userMenuRepository;
     }
 
     public ResponseDto saveUser(UserDto userDto) {
@@ -65,12 +67,20 @@ public class UserService {
 //            substring = UUID.randomUUID().toString().substring(0, 10);
 //        } while (userRepository.existsByToken(substring));
 
+            String encode = passwordEncoder.encode(userDto.getPassword());
+
+            UserPwHistoryEntity build = UserPwHistoryEntity.builder()
+                    .oldPassword(encode)
+                    .pwChangedDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+                    .isActive(true)
+                    .build();
+
             UserEntity user = UserEntity.builder()
                     .firstName(userDto.getFirstName())
                     .lastName(userDto.getLastName())
                     .userName(userDto.getEmail())
                     .email(userDto.getEmail())
-                    .password(passwordEncoder.encode(userDto.getPassword()))
+                    .password(encode)
                     .contactNumber(userDto.getContactNumber())
                     .tryCount(0)
                     .isLocked(false)
@@ -78,6 +88,25 @@ public class UserService {
                     .isActive(true)
 //                .token(substring)
                     .build();
+
+            List<UserMenuEntity> userMenuEntities = new ArrayList<>();
+
+            userDto.getRoleMenuPermission().forEach((menuId, permissionIds) -> {
+                menuRepository.findById(menuId).ifPresent(menuEntity -> {
+                    permissionIds.forEach(permissionId -> {
+                        permissionRepository.findById(permissionId).ifPresent(permissionEntity -> {
+                            UserMenuEntity userMenuEntity = UserMenuEntity.builder()
+                                    .user(user) // Assuming `userEntity` is already available
+                                    .menu(menuEntity)
+                                    .permission(permissionEntity)
+                                    .isActive(true) // Assuming new records should be active
+                                    .build();
+
+                            userMenuEntities.add(userMenuEntity);
+                        });
+                    });
+                });
+            });
 
             List<UserRoleEntity> userRoleEntities = new ArrayList<>();
 
@@ -95,7 +124,7 @@ public class UserService {
                 }
             });
 
-            if (userRepository.save(user) != null && userRoleRepository.saveAll(userRoleEntities) != null) {
+            if (userRepository.save(user) != null && userRoleRepository.saveAll(userRoleEntities) != null && userPasswordRepository.save(build) != null && userMenuRepository.saveAll(userMenuEntities) != null) {
                 // need to send emails if password set via email
 
                 logger.info("User saved successfully");
@@ -380,6 +409,7 @@ public class UserService {
 
             HashMap<String, Object> map = new HashMap<>();
             map.put("users", list);
+            map.put("rowCount", userRepository.count());
             logger.info("Users found successfully");
             return new ResponseDto("Users found successfully", 200, map);
         } catch (Exception e) {

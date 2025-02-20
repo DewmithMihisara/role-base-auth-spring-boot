@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Dewmith Mihisara
@@ -36,4 +37,7 @@ public class UserDto implements Serializable {
 
     // if password set via emails, remove this
     private String password;
+
+    // map<menuId, permissionId>
+    private Map<Long, List<Long>> roleMenuPermission;
 }
