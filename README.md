@@ -193,9 +193,3 @@ All settings below are in `src/main/resources/application-dev.properties`.
 | `security.jwt.refresh.expire` | `1800000` | Refresh token TTL (ms) |
 
 For production, copy values into `application-prod.properties` and activate with `--spring.profiles.active=prod`.
-
----
-
-## GitHub About Description
-
-> Spring Boot 3 JWT role-based authentication template — User, Role, Menu & Permission management with account locking and Swagger UI.
